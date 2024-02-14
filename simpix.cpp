@@ -17,18 +17,24 @@
 #include <math.h>
 #include <iostream>
 #include <stdio.h>
+#include <iomanip>
+#include <string>
+#include <sstream>
 using namespace std;
 
 const UInt_t six16 = 16*16*16*16*16*16;
 const UInt_t four16 = 16*16*16*16;
 const UInt_t two16 = 16*16;
 
-typedef struct {    // Pixel object
+
+// Pixel object
+struct Pixel {
   UInt_t r, g, b;
-} Pixel;
+};
 
 
-void sepRGBPixel(UInt_t p, Pixel *rgb) {      // Separation of red, blue, and green from hexcode
+// Separation of red, blue, and green from hexcode
+void sepRGBPixel(UInt_t p, Pixel *rgb) {
   UInt_t alpha;
   alpha = p/six16;
   rgb->r = (p - (alpha*six16))/four16;
@@ -37,21 +43,24 @@ void sepRGBPixel(UInt_t p, Pixel *rgb) {      // Separation of red, blue, and gr
 }
 
 
-void sepRGBArray(UInt_t *arr, Pixel *arrRGB, int npixels) {   // Separates red, blue, and green for every pixel in an array
+// Separates red, blue, and green for every pixel in an array
+void sepRGBArray(UInt_t *arr, Pixel *arrRGB, int npixels) {
   int ip;
   for (ip = 0; ip < npixels; ip++) {
-	sepRGBPixel(arr[ip], &arrRGB[ip]);
+	  sepRGBPixel(arr[ip], &arrRGB[ip]);
   }
 }
 
 
-double energyC(UInt_t out, UInt_t tgt) {  // Find difference between 2 colors
+// Find difference between 2 colors, ensuring output is positive
+double energyC(UInt_t out, UInt_t tgt) {
   if (out > tgt) return (double)(out - tgt);
   else return (double)(tgt - out);
 }
 
 
-double energyP(Pixel out, Pixel tgt) {  // Finds total color difference between 2 pixels
+// Finds total color difference between 2 pixels; multiple methods included but only 1 is used
+double energyP(Pixel out, Pixel tgt) {
   double E = 0;
   double rmean = ((double)(out.r+tgt.r))/2.0;
   double dr = energyC(out.r, tgt.r);
@@ -66,28 +75,32 @@ double energyP(Pixel out, Pixel tgt) {  // Finds total color difference between 
 }
 
 
-double energyT(Pixel *out, Pixel *tgt, int npixels) {   // Sum of color differences of all pixels
+// Sum of color differences of all pixels
+double energyT(Pixel *out, Pixel *tgt, int npixels) {
   double E = 0;
   for (int i = 0; i < npixels; i++) E += energyP(out[i], tgt[i]);
   return E;
 }
 
 
-void switchColors(UInt_t *c1, UInt_t *c2) {   // Swaps 2 reds, 2 blues, or 2 greens
+// Swaps the reds, greens, or blues of 2 pixels
+void switchColors(UInt_t *c1, UInt_t *c2) {
   UInt_t temp = *c1;
   *c1 = *c2;
   *c2 = temp;
 }
 
 
-void switchPixels(Pixel *p1, Pixel *p2) {   // Swaps the colors of 2 pixels
+// Swaps the colors of 2 pixels
+void switchPixels(Pixel *p1, Pixel *p2) {
   switchColors(&p1->r, &p2->r);
   switchColors(&p1->g, &p2->g);
   switchColors(&p1->b, &p2->b);
 }
 
 
-void InitializeHot(Pixel *out, int npixels) {   // Initialize by simulating a "high temperature state" where pixels swap randomly
+// Initialize by simulating a "high temperature state" where pixels swap randomly and frequently
+void InitializeHot(Pixel *out, int npixels) { 
   int i;
   for (i = npixels - 1; i > 0; i--) {
     int j = ((int)(npixels*drand48())) % (i+1);
@@ -96,29 +109,32 @@ void InitializeHot(Pixel *out, int npixels) {   // Initialize by simulating a "h
 }
 
 
-void updatePixels(Pixel *out, Pixel *tgt, int npixels, double beta, int n1, int n2, double &E) {    // Use Boltzmann distribution to swap pixels according to the temperature
+// Use Boltzmann distribution as probability to swap 2 pixels according to the "temperature"; Used 50% of the time
+void updatePixels(Pixel *out, Pixel *tgt, int npixels, double beta, int n1, int n2, double &E) {
   double dE = energyP(out[n2], tgt[n1]) + energyP(out[n1], tgt[n2]) - energyP(out[n1], tgt[n1]) - energyP(out[n2], tgt[n2]);
   if (dE < 0 || drand48() < exp(-dE*beta)) {
-	switchPixels(&out[n1], &out[n2]);
-	E += dE;
+	  switchPixels(&out[n1], &out[n2]);
+	  E += dE;
   }
 }
 
 
-void updatePixels2(Pixel *out, Pixel *tgt, int npixels, double beta, int n1, int n2, double &E) {   // Different method of swapping pixels which is randomly chosen 50% of the time
+// Use Boltzmann distribution as probability to reverse subsequence of pixels according to the "temperature"; Used 50% of the time
+void updatePixels2(Pixel *out, Pixel *tgt, int npixels, double beta, int n1, int n2, double &E) {
   int diff = abs(n2-n1) + 1;
   double dE = 0;
   for (int i = 0; i < diff/2; i++) {
-	dE += energyP(out[n2-i], tgt[n1+i]) + energyP(out[n1+i], tgt[n2-i]) - energyP(out[n1+i], tgt[n1+i]) - energyP(out[n2-i], tgt[n2-i]);
+	  dE += energyP(out[n2-i], tgt[n1+i]) + energyP(out[n1+i], tgt[n2-i]) - energyP(out[n1+i], tgt[n1+i]) - energyP(out[n2-i], tgt[n2-i]);
   }
   if (dE < 0 || drand48() < exp(-dE*beta)) {
-	for (int i = 0; i < diff/2; i++) switchPixels(&out[n1+i], &out[n2-i]);
-	E += dE;
+	  for (int i = 0; i < diff/2; i++) switchPixels(&out[n1+i], &out[n2-i]);
+	  E += dE;
   }
 }
 
 
-void sweep(Pixel *out, Pixel *tgt, int npixels, double beta, double &E) {   // Process of updating the state based on "energy" and "temperature"
+// Process of updating the "state" or image based on "energy" or total color difference and "temperature"
+void sweep(Pixel *out, Pixel *tgt, int npixels, double beta, double &E) {
   int np, i, j;
   for (np = 0; np < npixels; np++) {
 	if (drand48() > 0.5) {
@@ -158,9 +174,7 @@ int main(int argc, char **argv){
   cout << "Reading images: source= " << fsrc << " target= " << ftgt << endl;
   cout << "Output= " << fout << endl;
 
-  // TApplication theApp("App", &argc, argv);
-
-  // create image objects
+  // Create image objects
   TASImage *src = new TASImage(fsrc.Data());
   TASImage *tgt = new TASImage(ftgt.Data());
   TASImage *out = new TASImage(*src); // start with copy of source
@@ -168,7 +182,8 @@ int main(int argc, char **argv){
   // Test image geometry, exit if they are not the same dimensions
   assert ( src->GetWidth() == tgt->GetWidth() && src->GetHeight() == tgt->GetHeight() );
   cout << "Pixel Geometry: " << src->GetWidth() << " x " << src->GetHeight() << endl;
-  Long_t numPix=src->GetWidth()*src->GetHeight();
+  cout << "Total Pixels: " << (long)src->GetWidth()*(long)src->GetHeight() << endl;
+  Long_t numPix=(long)src->GetWidth()*(long)src->GetHeight();
 
   // *** The work happens here
   // access the pixels for the output image 
@@ -176,8 +191,9 @@ int main(int argc, char **argv){
   // don't touch alpha (bits 31:28)
   UInt_t *outPix = out->GetArgbArray();
   UInt_t *tgtPix = tgt->GetArgbArray();
-  Pixel outRGB[numPix];
-  Pixel tgtRGB[numPix];
+  // Previous issues with running out of memory for larger images, which dynamic memory allocation seems to have fixed
+  Pixel* outRGB = new Pixel[numPix];
+  Pixel* tgtRGB = new Pixel[numPix];
   sepRGBArray(outPix, outRGB, numPix);
   sepRGBArray(tgtPix, tgtRGB, numPix);
 
@@ -185,11 +201,13 @@ int main(int argc, char **argv){
 
   // *************************
 
-  int it, nt, itherm, ntherm, isweep, nsweep;
+  // Begin "annealing" process of the image
+  // it = iterative variable in loop of decreasing "temperature"; nt = total # of "temperature" steps for "annealing" process
+  // itherm = iterative variable for updating the image; ntherm = total # of times the image is updated
+  int it, nt, itherm, ntherm;
   double T, beta, Tmax, E;
-  nt = 150;
-  ntherm = 15;
-  nsweep = 1;//100;
+  nt = 100;
+  ntherm = 10;
   Tmax = 1000;
 
   FILE *output;
@@ -197,21 +215,22 @@ int main(int argc, char **argv){
 
   E = energyT(outRGB, tgtRGB, numPix);
   for (it = nt; it > 0; it--) {   // "Temperature" decrement loop
-	T = (Tmax*((double)it))/((double)nt);
+	  T = (Tmax*((double)it))/((double)nt);
     beta = 1/T;
-	for (itherm = 0; itherm < ntherm; itherm++) sweep(outRGB, tgtRGB, numPix, beta, E); // Allow the "state" to "thermalize" at this "temperature"
-	for (isweep = 0; isweep < nsweep; isweep++) {
-	  sweep(outRGB, tgtRGB, numPix, beta, E);
-	}
-	fprintf(output, "%lf	%lf\n", T, E);    // Print "temperature" and "energy" values to the output file
+	  for (itherm = 0; itherm < ntherm; itherm++) { sweep(outRGB, tgtRGB, numPix, beta, E); }// Allow the "state" to "thermalize" at this "temperature"
+	  fprintf(output, "%lf	%lf\n", T, E);    // Print "temperature" and "energy" values to the output file
+    double progress = (double)(nt-it)/(double)nt*100.;  // These last few lines of the loop are for printing progress
+    cout << "\rProgress: " << std::fixed << setprecision(2) << progress << "%";
+    cout.flush();
   }
+  cout << endl;
   for (int i = 0; i < numPix; i++) {    // Convert final pixels back to hexcode
-	UInt_t hexcode = 0;
-	hexcode += 255*six16;
-	hexcode += outRGB[i].r*four16;
-	hexcode += outRGB[i].g*two16;
+	  UInt_t hexcode = 0;
+	  hexcode += 255*six16;
+	  hexcode += outRGB[i].r*four16;
+	  hexcode += outRGB[i].g*two16;
   	hexcode += outRGB[i].b;
-	outPix[i] = hexcode;
+	  outPix[i] = hexcode;
   }
 
 
@@ -227,14 +246,20 @@ int main(int argc, char **argv){
   tgt->Draw("X");
   c1->cd(3);
   out->Draw("X");
-  c1->Print("1024x768collage2.png");
+  stringstream ssw, ssh;
+  ssw << src->GetWidth();
+  ssh << src->GetHeight();
+  string collagefilename = ssw.str()+"x"+ssh.str()+"collage.png";
+  c1->Print(collagefilename.c_str());
   
   // save the new image
   out->WriteImage(fout.Data());
 
   // comment out the lines for running in batch mode
-  cout << "Press ^c to exit" << endl;
+  // cout << "Press ^c to exit" << endl;
   // theApp.SetIdleTimer(30,".q");  // set up a failsafe timer to end the program  
   // theApp.Run();
 
+  delete outRGB;
+  delete tgtRGB;
 }
