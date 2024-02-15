@@ -168,9 +168,12 @@ int main(int argc, char **argv){
     return 0; 
   }
   TString fsrc=argv[1];   // This is the image which will have its pixels manipulated
+  fsrc = "Images/" + fsrc;
   TString ftgt=argv[2];   // This is the image which will be copied
+  ftgt = "Images/" + ftgt;
   TString fout;
   argc>3 ? fout = argv[3] : fout="out.png";
+  fout = "Output/" + fout;
   cout << "Reading images: source= " << fsrc << " target= " << ftgt << endl;
   cout << "Output= " << fout << endl;
 
@@ -229,7 +232,7 @@ int main(int argc, char **argv){
 	  hexcode += 255*six16;
 	  hexcode += outRGB[i].r*four16;
 	  hexcode += outRGB[i].g*two16;
-  	hexcode += outRGB[i].b;
+    hexcode += outRGB[i].b;
 	  outPix[i] = hexcode;
   }
 
@@ -249,7 +252,7 @@ int main(int argc, char **argv){
   stringstream ssw, ssh;
   ssw << src->GetWidth();
   ssh << src->GetHeight();
-  string collagefilename = ssw.str()+"x"+ssh.str()+"collage.png";
+  string collagefilename = "Output/"+ssw.str()+"x"+ssh.str()+"collage.png";
   c1->Print(collagefilename.c_str());
   
   // save the new image
