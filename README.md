@@ -2,11 +2,11 @@
 
 ## Description 
 
-    This program takes the pixels of one image and rearranges them to look like a 2nd image. This is done through a
+This program takes the pixels of one image and rearranges them to look like a 2nd image. This is done through a
     clever use of the process of annealing seen in Statistical Physics by modeling the difference in the color of the
     pixels in each image as a sort of Ising model. For accurate results on larger images, this program needs to run
     for several hours, because annealing is a slow process and typically the slower it is the more accurate results
-    are achieved. For this reason, my final reasults were calculated using slurm on the Rivanna supercluster.
+    are achieved. For this reason, my final results were calculated using slurm on the Rivanna supercluster.
 
 ## Libraries and Dependencies
 
@@ -17,14 +17,14 @@
 
 ## Compiling and Running
 
-    This program uses a Makefile to compile. The program should be ran by typing the following on the command line:
+    This program uses a Makefile to compile. The program should be run by typing the following on the command line:
     ./simpix Images/SourceFileName.png Images/TargetFileName.png Output/OutputFileName.png
-    Although it can also be ran by typing the following on the command line:
+    Although it can also be run by typing the following on the command line:
     ./simpix Images/SourceFileName.png Images/TargetFileName.png
     Where the default output file name is "out.png"
-    If you are using images with resolution higher than 640x480 and have access to a supercluster, then I would
+    If you are using images with a resolution higher than 640x480 and have access to a supercluster, then I would
     suggest running it using a slurm file to run it.
-    It is also important that both the source image and the target image have similar colored pixels, so that the
+    It is also important that both the source image and the target image have similar colored pixels so that the
     product will look nice
 
 ## Example
@@ -51,7 +51,7 @@
     
     Because this program takes these images and moves the pixels around by modeling a physical process in statistical
     physics, the color difference between the output image and the target image is recorded as the "energy" of the
-    system. Each step in the annealing process, the "energy" or color difference and the "temperature" or the
+    system. For each step in the annealing process, the "energy" or color difference and the "temperature" or the
     probability of pixel fluctuations are recorded in this file. The data from this file can be plotted to see that
     the "energy" does indeed minimize.
 
@@ -73,5 +73,5 @@
 
 ## Future Additions
 
-    In the future, I plan on adding a dynamic canvas that pops up and shows the thermalization in real time. This
+    In the future, I plan on adding a dynamic canvas that pops up and shows the thermalization in real-time. This
     would make it more apparent what is exactly happening and how the product is being created.
