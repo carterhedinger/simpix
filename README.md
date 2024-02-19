@@ -29,7 +29,7 @@
 
 ## Example
 
-    ![Collage of source image in top right, target image in top left, and output image in bottom left](https://github.com/carterhedinger/simpix/blob/main/1024x768files/1024x768collage_final.png)
+    ![Collage of source image in top right, target image in top left, and output image in bottom left](/simpix/1024x768files/1024x768collage_final.png)
 
 ## Included Image Pairs
 
