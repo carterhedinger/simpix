@@ -14,9 +14,13 @@ on the command line. For other systems, I recommend following the instructions a
 ## Compiling and Running
 
 This program uses a Makefile to compile. The program should be run by typing the following on the command line:
+
 ./simpix Images/SourceFileName.png Images/TargetFileName.png Output/OutputFileName.png
+
 Although it can also be run by typing the following on the command line:
+
 ./simpix Images/SourceFileName.png Images/TargetFileName.png
+
 Where the default output file name is "out.png"
 If you are using images with a resolution higher than 640x480 and have access to a supercluster, then I would suggest running it using a slurm file to run it. It is also important that both the source image and the target image have similar colored pixels so that the product will look nice.
 
@@ -27,8 +31,11 @@ If you are using images with a resolution higher than 640x480 and have access to
 ## Included Image Pairs
 
 I have included a few pairs of images that work well for this program. I have listed the pairs below:
-frisbee_scott_stadium.png & rotunda_north_facade.png
-Claude_Monet_Le_Grand_Canal.png & Claude_Monet_The_Cliffs_at_Etretat.png
+
+frisbee_scott_stadium.png & rotunda_north_facade.png,
+
+Claude_Monet_Le_Grand_Canal.png & Claude_Monet_The_Cliffs_at_Etretat.png,
+
 remarkable_volcanic_eruption-wallpaper-640x480.png & amazing_asiatic_landscape_art-wallpaper-640x480.png
 
 To use your own pair of images, simply place both into the "Images" directory and run the code using one as the source and the other as the target.
